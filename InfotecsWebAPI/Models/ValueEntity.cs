@@ -10,6 +10,7 @@ namespace InfotecsWebAPI.Models;
 [Table("Values")]
 [Index(nameof(FileName))]
 [Index(nameof(Date))]
+[Index(nameof(FileName), nameof(Date))]
 public class ValueEntity
 {
     [Key]

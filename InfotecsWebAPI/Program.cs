@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using InfotecsWebAPI.Data;
+using InfotecsWebAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,9 @@ builder.Services.AddOpenApi();
 // Add Entity Framework and PostgreSQL
 builder.Services.AddDbContext<TimescaleDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add application services
+builder.Services.AddScoped<ICsvProcessingService, CsvProcessingService>();
 
 // Add controllers
 builder.Services.AddControllers();
@@ -26,10 +30,5 @@ app.UseHttpsRedirection();
 
 // Map controllers
 app.MapControllers();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
 app.Run();
