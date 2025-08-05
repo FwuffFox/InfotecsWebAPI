@@ -24,6 +24,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/openapi/v1.json", "Infotecs Web API V1");
+        c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+    });
 }
 
 app.UseHttpsRedirection();

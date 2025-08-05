@@ -13,15 +13,18 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
 {
     private const long MaxFileSizeBytes = 50 * 1024 * 1024; // 50 MB
     private static readonly string[] AllowedExtensions = { ".csv" };
-
-    /// <summary>
-    /// Uploads and processes a CSV file.
-    /// </summary>
-    /// <param name="file">The CSV file to process</param>
-    /// <returns>Success message or error details</returns>
+    
+    [EndpointSummary("Upload and process a CSV file containing timescale data.")]
     [HttpPost("upload")]
     [RequestSizeLimit(MaxFileSizeBytes)]
-    public async Task<IActionResult> UploadCsv([FromForm] IFormFile? file)
+    [Consumes("multipart/form-data")]
+    [Produces("application/json")]
+    [
+        ProducesResponseType(StatusCodes.Status200OK),
+        ProducesResponseType(StatusCodes.Status400BadRequest),
+        ProducesResponseType(StatusCodes.Status500InternalServerError)
+    ]
+    public async Task<IActionResult> UploadCsv(IFormFile? file)
     {
         if (IsFileInvalid(file, out var badRequest)) return badRequest!;
         
