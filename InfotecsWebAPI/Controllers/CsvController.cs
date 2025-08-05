@@ -21,7 +21,6 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
     /// <returns>Success message or error details</returns>
     [HttpPost("upload")]
     [RequestSizeLimit(MaxFileSizeBytes)]
-    [DisableRequestSizeLimit]
     public async Task<IActionResult> UploadCsv([FromForm] IFormFile? file)
     {
         if (IsFileInvalid(file, out var badRequest)) return badRequest!;
