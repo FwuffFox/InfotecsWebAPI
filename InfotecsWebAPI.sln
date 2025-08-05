@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfotecsWebAPI", "InfotecsWebAPI\InfotecsWebAPI.csproj", "{5471C1BE-87A5-4721-AE3B-701400913D54}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2449C69A-D3D5-41D5-A2A2-64090FD9BB47}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5471C1BE-87A5-4721-AE3B-701400913D54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5471C1BE-87A5-4721-AE3B-701400913D54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5471C1BE-87A5-4721-AE3B-701400913D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5471C1BE-87A5-4721-AE3B-701400913D54}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
