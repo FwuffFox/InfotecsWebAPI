@@ -31,7 +31,7 @@ public class ResultEntity
     /// Minimum start time as the first operation start moment.
     /// </summary>
     [Required]
-    public DateTime MinStartTime { get; set; }
+    public DateTimeOffset MinStartTime { get; set; }
 
     /// <summary>
     /// Average execution time.

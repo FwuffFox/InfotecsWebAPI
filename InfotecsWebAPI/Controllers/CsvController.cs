@@ -12,7 +12,7 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
     : ControllerBase
 {
     private const long MaxFileSizeBytes = 50 * 1024 * 1024; // 50 MB
-    private static readonly string[] AllowedExtensions = { ".csv" };
+    private static readonly string[] AllowedExtensions = [".csv"];
     
     [EndpointSummary("Upload and process a CSV file containing timescale data.")]
     [HttpPost("upload")]
@@ -60,7 +60,7 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
 
     private bool IsFileInvalid(IFormFile? file, out IActionResult? badRequest)
     {
-        if (file == null || file.Length == 0)
+        if (file is null || file.Length == 0)
         {
             badRequest = BadRequest(new { error = "No file uploaded or file is empty." });
             return true;
@@ -70,19 +70,10 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
             badRequest = BadRequest(new { error = "File size exceeds the maximum limit of 50 MB." });
             return true;
         }
-        if (!AllowedExtensions.Contains(Path.GetExtension(file.FileName).ToLowerInvariant()))
+        if (!AllowedExtensions.Contains(Path.GetExtension(file.FileName).ToLowerInvariant())
+            || (file.ContentType != "text/csv" && file.ContentType != "application/csv"))
         {
             badRequest = BadRequest(new { error = "Invalid file type. Only CSV files are allowed." });
-            return true;
-        }
-        if (file.ContentType != "text/csv" && file.ContentType != "application/csv")
-        {
-            badRequest = BadRequest(new { error = "Invalid content type. Only CSV files are allowed." });
-            return true;
-        }
-        if (file.Length == 0)
-        {
-            badRequest = BadRequest(new { error = "File is empty." });
             return true;
         }
         badRequest = null;

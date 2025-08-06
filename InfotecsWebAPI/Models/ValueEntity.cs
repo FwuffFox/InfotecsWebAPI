@@ -21,7 +21,7 @@ public class ValueEntity
     public string FileName { get; set; } = string.Empty;
 
     [Required]
-    public DateTime Date { get; set; }
+    public DateTimeOffset Date { get; set; }
 
     [Required]
     [Column(TypeName = "decimal(18,6)")]

@@ -19,8 +19,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Install Entity Framework tools for migrations
-RUN dotnet tool install --global dotnet-ef
 ENV PATH="$PATH:/root/.dotnet/tools"
 
 ENTRYPOINT ["dotnet", "InfotecsWebAPI.dll"]

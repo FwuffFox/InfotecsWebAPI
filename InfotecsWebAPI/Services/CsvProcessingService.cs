@@ -2,6 +2,7 @@ using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
 using InfotecsWebAPI.Data;
+using InfotecsWebAPI.Mappers;
 using InfotecsWebAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,8 @@ namespace InfotecsWebAPI.Services;
 /// </summary>
 internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessingService
 {
+    private const int MaxLines = 10_000;
+
     /// <summary>
     /// Processes CSV file and saves data to database with validation.
     /// </summary>
@@ -20,20 +23,22 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         try
         {
-            var values =
-                ParseAndValidateCsvAsync(csvContent, fileName)
-                    .ToBlockingEnumerable()
-                    .ToList();
-            
+            var valueDTOs = ParseAndValidateCsv(csvContent, fileName);
+
+            if (valueDTOs.Count == 0 || valueDTOs.Count > MaxLines)
+                throw new InvalidOperationException($"CSV file must contain between 1 and {MaxLines} lines of data.");
+
+            var values = ValueDTOToValueEntityMapper.ToEntities(valueDTOs, fileName).ToList();
+
             await RemoveExistingDataAsync(fileName);
 
             await dbContext.Values.AddRangeAsync(values);
             await dbContext.SaveChangesAsync();
-            
+
             var result = CalculateResults(values, fileName);
             await dbContext.Results.AddAsync(result);
             await dbContext.SaveChangesAsync();
-            
+
             await transaction.CommitAsync();
         }
         catch (Exception ex)
@@ -46,14 +51,16 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
     /// <summary>
     /// Parses CSV content
     /// </summary>
-    private IAsyncEnumerable<ValueEntity> ParseAndValidateCsvAsync(Stream csvContent, string fileName)
+    private List<ValueDTO> ParseAndValidateCsv(Stream csvContent, string fileName)
     {
         using var reader = new StreamReader(csvContent);
         using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            HasHeaderRecord = true,
+            Delimiter = ";", // Assuming semicolon as delimiter
         });
-        return csv.GetRecordsAsync<ValueEntity>();
+        csv.Context.RegisterClassMap<CsvToValueDTOMapper>();
+
+        return [.. csv.GetRecords<ValueDTO>()];
     }
 
     /// <summary>
@@ -65,7 +72,7 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
             .Where(r => r.FileName == fileName)
             .ToListAsync();
         dbContext.Results.RemoveRange(existingResults);
-        
+
         var existingValues = await dbContext.Values
             .Where(v => v.FileName == fileName)
             .ToListAsync();
@@ -82,9 +89,9 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
         var dates = values.Select(v => v.Date).OrderBy(d => d).ToList();
         var executionTimes = values.Select(v => v.ExecutionTime).ToList();
         var valuesList = values.Select(v => v.Value).OrderBy(v => v).ToList();
-        
+
         var timeDelta = (long)(dates.Last() - dates.First()).TotalSeconds;
-        
+
         var median = valuesList.Count % 2 == 0
             ? (valuesList[valuesList.Count / 2 - 1] + valuesList[valuesList.Count / 2]) / 2
             : valuesList[valuesList.Count / 2];

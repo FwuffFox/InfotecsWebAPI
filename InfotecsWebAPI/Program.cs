@@ -24,7 +24,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    
+
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/openapi/v1.json", "Infotecs Web API V1");
@@ -36,5 +36,9 @@ app.UseHttpsRedirection();
 
 // Map controllers
 app.MapControllers();
+
+using var scope = app.Services.CreateScope();
+var dbContext = scope.ServiceProvider.GetRequiredService<TimescaleDbContext>();
+await dbContext.Database.MigrateAsync();
 
 app.Run();
