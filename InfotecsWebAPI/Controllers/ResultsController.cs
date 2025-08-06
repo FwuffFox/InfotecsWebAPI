@@ -14,7 +14,6 @@ namespace InfotecsWebAPI.Controllers;
 public class ResultsController(
     ILogger<ResultsController> logger,
     IResultService resultService,
-    IValueService valueService,
     ActivitySource activitySource) : ControllerBase
 {
     [HttpGet("results")]

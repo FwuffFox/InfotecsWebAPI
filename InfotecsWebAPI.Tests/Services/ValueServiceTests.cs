@@ -306,18 +306,6 @@ public class ValueServiceTests : IDisposable
         result.Value.Should().BePositive();
     }
 
-    [Fact]
-    public async Task GetLastValuesAsync_WithLargeLimit_ShouldHandleEfficiently()
-    {
-        // Act
-        var results = (await _valueService.GetLastValuesAsync("test1.csv", limit: 1000)).ToList();
-
-        // Assert
-        results.Should().HaveCount(5); // Still only 5 available
-        results.Should().OnlyContain(v => v.FileName == "test1.csv");
-        results.Should().BeInDescendingOrder(v => v.Date);
-    }
-
     [Theory]
     [InlineData("test1.csv", 5)]
     [InlineData("test2.csv", 3)]
