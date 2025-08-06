@@ -23,12 +23,12 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         try
         {
-            var valueDTOs = ParseAndValidateCsv(csvContent, fileName);
+            var valueDtos = ParseAndValidateCsv(csvContent, fileName);
 
-            if (valueDTOs.Count == 0 || valueDTOs.Count > MaxLines)
+            if (valueDtos.Count == 0 || valueDtos.Count > MaxLines)
                 throw new InvalidOperationException($"CSV file must contain between 1 and {MaxLines} lines of data.");
 
-            var values = ValueDTOToValueEntityMapper.ToEntities(valueDTOs, fileName).ToList();
+            var values = ValueDtoToValueEntityMapper.ToEntities(valueDtos, fileName).ToList();
 
             await RemoveExistingDataAsync(fileName);
 
@@ -51,16 +51,16 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
     /// <summary>
     /// Parses CSV content
     /// </summary>
-    private List<ValueDTO> ParseAndValidateCsv(Stream csvContent, string fileName)
+    private List<ValueDto> ParseAndValidateCsv(Stream csvContent, string fileName)
     {
         using var reader = new StreamReader(csvContent);
         using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             Delimiter = ";", // Assuming semicolon as delimiter
         });
-        csv.Context.RegisterClassMap<CsvToValueDTOMapper>();
+        csv.Context.RegisterClassMap<CsvToValueDtoMapper>();
 
-        return [.. csv.GetRecords<ValueDTO>()];
+        return [.. csv.GetRecords<ValueDto>()];
     }
 
     /// <summary>

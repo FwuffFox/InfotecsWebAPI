@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using CsvHelper.TypeConversion;
 using Microsoft.AspNetCore.Mvc;
 using InfotecsWebAPI.Services;
 
@@ -8,7 +10,7 @@ namespace InfotecsWebAPI.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class CsvController(ICsvProcessingService csvProcessingService, ILogger<CsvController> logger)
+public class CsvController(ICsvProcessingService csvProcessingService, ILogger<CsvController> logger, ActivitySource activitySource)
     : ControllerBase
 {
     private const long MaxFileSizeBytes = 50 * 1024 * 1024; // 50 MB
@@ -26,7 +28,13 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
     ]
     public async Task<IActionResult> UploadCsv(IFormFile? file)
     {
-        if (IsFileInvalid(file, out var badRequest)) return badRequest!;
+        using var activity = activitySource.StartActivity();
+
+        if (IsFileInvalid(file, out var badRequest))
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, $"Invalid file upload attempt");
+            return badRequest!;
+        }
         
         try
         {
@@ -38,9 +46,10 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
                 timestamp = DateTime.UtcNow
             });
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is InvalidOperationException or FormatException or ArgumentException or TypeConverterException)
         {
             logger.LogWarning(ex, "Validation error processing CSV file: {FileName}", file?.FileName);
+            activity?.SetStatus(ActivityStatusCode.Error, $"Validation error: {ex.Message}");
             return BadRequest(new { 
                 error = "Validation error", 
                 message = ex.Message,
@@ -50,6 +59,7 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error processing CSV file: {FileName}", file?.FileName);
+            activity?.SetStatus(ActivityStatusCode.Error, $"Unexpected error: {ex.Message}");
             return StatusCode(500, new { 
                 error = "Internal server error", 
                 message = "An unexpected error occurred while processing the file",

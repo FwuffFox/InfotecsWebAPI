@@ -7,36 +7,36 @@ namespace InfotecsWebAPI.Models;
 /// Data Transfer Object for CSV value data.
 /// Represents a single row from CSV with format: Date;ExecutionTime;Value
 /// </summary>
-public class ValueDTO
+public class ValueDto
 {
     /// <summary>
     /// Date in format yyyy-MM-ddTHH:mm:ss.fffZ
     /// </summary>
-    required public DateTimeOffset Date { get; set; }
+    public required DateTimeOffset Date { get; set; }
 
     /// <summary>
     /// Execution time in seconds
     /// </summary>
-    required public string ExecutionTime { get; set; }
+    public required string ExecutionTime { get; set; }
 
     /// <summary>
     /// Value as floating point number
     /// </summary>
-    required public string Value { get; set; }
+    public required string Value { get; set; }
 
-    public class ValueDtoValidator : AbstractValidator<ValueDTO>
+    public class ValueDtoValidator : AbstractValidator<ValueDto>
     {
         public ValueDtoValidator()
         {
             RuleFor(x => x.Date)
                 .Must(date => date < DateTimeOffset.UtcNow)
-                    .WithMessage("Date must be in the past.");
+                    .WithMessage(value => $"Date must be in the past. ({value.Date})");
 
             RuleFor(x => x.ExecutionTime)
                 .NotEmpty()
                     .WithMessage("Execution time is required.")
                 .Matches(@"^\d+(\.\d+)?$")
-                    .WithMessage("Execution time must be a valid number.")
+                    .WithMessage(value => $"Execution time must be a valid number. ({value.ExecutionTime})")
                 .Must(executionTime =>
                 {
                     if (decimal.TryParse(executionTime, out var parsedExecutionTime))
@@ -45,13 +45,13 @@ public class ValueDTO
                     }
                     return false;
                 })
-                    .WithMessage("Execution time must be non-negative.");
+                    .WithMessage(value => $"Execution time must be non-negative. ({value.ExecutionTime})");
 
             RuleFor(x => x.Value)
                 .NotEmpty()
                     .WithMessage("Value is required.")
                 .Matches(@"^\d+(\.\d+)?$")
-                    .WithMessage("Value must be a valid number.")
+                    .WithMessage(value => $"Value must be a valid number. ({value.Value})")
                 .Must(value =>
                 {
                     if (decimal.TryParse(value, out var parsedValue))
@@ -60,7 +60,7 @@ public class ValueDTO
                     }
                     return false;
                 })
-                    .WithMessage("Value must be non-negative.");
+                    .WithMessage(value => $"Value must be non-negative. ({value.Value})");
         }
     }
 }

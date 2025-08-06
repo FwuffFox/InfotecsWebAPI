@@ -6,7 +6,7 @@ namespace InfotecsWebAPI.Mappers;
 /// <summary>
 /// Mapper for converting ValueDto to ValueEntity.
 /// </summary>
-public static class ValueDTOToValueEntityMapper
+public static class ValueDtoToValueEntityMapper
 {
     /// <summary>
     /// Maps ValueDto to ValueEntity.
@@ -15,19 +15,19 @@ public static class ValueDTOToValueEntityMapper
     /// <param name="fileName">The name of the CSV file</param>
     /// <returns>Mapped ValueEntity</returns>
     /// <exception cref="ArgumentException">Thrown when DTO data is invalid</exception>
-    public static ValueEntity ToEntity(ValueDTO dto, string fileName)
+    public static ValueEntity ToEntity(ValueDto dto, string fileName)
     {
         ArgumentNullException.ThrowIfNull(dto);
         
         if (string.IsNullOrWhiteSpace(fileName))
             throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
 
-        var validator = new ValueDTO.ValueDtoValidator();
+        var validator = new ValueDto.ValueDtoValidator();
         var validationResult = validator.Validate(dto);
         if (!validationResult.IsValid)
         {
             var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-            throw new ArgumentException($"Invalid DTO data: {errors}", nameof(dto));
+            throw new ArgumentException($"Invalid DTO ({dto.ToString()}) data: {errors}", nameof(dto));
         }
 
         return new ValueEntity
@@ -45,7 +45,7 @@ public static class ValueDTOToValueEntityMapper
     /// <param name="dtos">Collection of DTOs to map</param>
     /// <param name="fileName">The name of the CSV file</param>
     /// <returns>Collection of mapped ValueEntity objects</returns>
-    public static IEnumerable<ValueEntity> ToEntities(IEnumerable<ValueDTO> dtos, string fileName)
+    public static IEnumerable<ValueEntity> ToEntities(IEnumerable<ValueDto> dtos, string fileName)
     {
         ArgumentNullException.ThrowIfNull(dtos);
 

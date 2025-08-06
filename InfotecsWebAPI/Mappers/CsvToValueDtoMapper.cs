@@ -4,9 +4,9 @@ using InfotecsWebAPI.Models;
 
 namespace InfotecsWebAPI.Mappers;
 
-public sealed class CsvToValueDTOMapper : ClassMap<ValueDTO>
+public sealed class CsvToValueDtoMapper : ClassMap<ValueDto>
 {
-    public CsvToValueDTOMapper()
+    public CsvToValueDtoMapper()
     {
         Map(m => m.Date).Name("Date")
             .TypeConverterOption.Format("yyyy-MM-ddTHH:mm:ss.fffZ");
