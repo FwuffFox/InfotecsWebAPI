@@ -76,7 +76,7 @@ public class ResultsController(
         try
         {
             using var activity = activitySource.StartActivity();
-            
+
             var results = await valueService.GetLastValuesAsync(fileName, sortDescending, count);
             
             return Ok(results);

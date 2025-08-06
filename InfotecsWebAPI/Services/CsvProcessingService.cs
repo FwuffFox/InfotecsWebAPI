@@ -41,7 +41,7 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
 
             await transaction.CommitAsync();
         }
-        catch (Exception ex)
+        catch
         {
             await transaction.RollbackAsync();
             throw;

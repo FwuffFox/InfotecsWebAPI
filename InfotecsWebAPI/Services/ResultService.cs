@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InfotecsWebAPI.Services;
 
-internal class ResultService(TimescaleDbContext dbContext) : IResultService
+public sealed class ResultService(TimescaleDbContext dbContext) : IResultService
 {
     public async Task<IEnumerable<ResultEntity>> GetFilteredResultsAsync(string? fileName = null,
         DateTimeOffset? minStartTime = null, DateTimeOffset? maxStartTime = null,
@@ -12,7 +12,7 @@ internal class ResultService(TimescaleDbContext dbContext) : IResultService
         decimal? maxAvgExecutionTime = null)
     {
         var query = dbContext.Results.AsQueryable();
-        if (!string.IsNullOrEmpty(fileName))
+        if (!string.IsNullOrWhiteSpace(fileName))
             query = query.Where(r => r.FileName.Contains(fileName));
         if (minStartTime.HasValue)
             query = query.Where(r => r.MinStartTime >= minStartTime.Value);
