@@ -49,7 +49,6 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
         catch (Exception ex) when (ex is InvalidOperationException or FormatException or ArgumentException or TypeConverterException)
         {
             logger.LogWarning(ex, "Validation error processing CSV file: {FileName}", file?.FileName);
-            activity?.SetStatus(ActivityStatusCode.Error, $"Validation error: {ex.Message}");
             return BadRequest(new { 
                 error = "Validation error", 
                 message = ex.Message,
@@ -59,7 +58,6 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error processing CSV file: {FileName}", file?.FileName);
-            activity?.SetStatus(ActivityStatusCode.Error, $"Unexpected error: {ex.Message}");
             return StatusCode(500, new { 
                 error = "Internal server error", 
                 message = "An unexpected error occurred while processing the file",

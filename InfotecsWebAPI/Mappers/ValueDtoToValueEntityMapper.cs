@@ -27,7 +27,7 @@ public static class ValueDtoToValueEntityMapper
         if (!validationResult.IsValid)
         {
             var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-            throw new ArgumentException($"Invalid DTO ({dto.ToString()}) data: {errors}", nameof(dto));
+            throw new ArgumentException($"Invalid DTO data: {errors}", nameof(dto));
         }
 
         return new ValueEntity
