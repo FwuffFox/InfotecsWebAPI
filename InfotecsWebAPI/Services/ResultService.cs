@@ -13,7 +13,7 @@ public sealed class ResultService(TimescaleDbContext dbContext) : IResultService
     {
         var query = dbContext.Results.AsQueryable();
         if (!string.IsNullOrWhiteSpace(fileName))
-            query = query.Where(r => r.FileName.Contains(fileName));
+            query = query.Where(r => r.FileName == fileName);
         if (minStartTime.HasValue)
             query = query.Where(r => r.MinStartTime >= minStartTime.Value);
         if (maxStartTime.HasValue)

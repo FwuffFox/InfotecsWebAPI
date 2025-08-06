@@ -97,18 +97,6 @@ public class ResultServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task GetFilteredResultsAsync_WithFileNameFilter_ShouldReturnMatchingResults()
-    {
-        // Act
-        var results = (await _resultService.GetFilteredResultsAsync(fileName: "test")).ToList();
-
-        // Assert
-        results.Should().HaveCount(2);
-        results.Should().OnlyContain(r => r.FileName.Contains("test"));
-        results.Select(r => r.FileName).Should().Contain("test1.csv", "test2.csv");
-    }
-
-    [Fact]
     public async Task GetFilteredResultsAsync_WithExactFileNameFilter_ShouldReturnExactMatch()
     {
         // Act
@@ -244,7 +232,7 @@ public class ResultServiceTests : IDisposable
     {
         // Act
         var results = (await _resultService.GetFilteredResultsAsync(
-            fileName: "test",
+            fileName: "test2.csv",
             minAvgValue: 30.0m,
             maxAvgExecutionTime: 3.0m)).ToList();
 
