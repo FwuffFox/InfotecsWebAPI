@@ -30,7 +30,9 @@ public class ValueDto
         {
             RuleFor(x => x.Date)
                 .Must(date => date < DateTimeOffset.UtcNow)
-                    .WithMessage(value => $"Date must be in the past. ({value.Date})");
+                    .WithMessage(value => $"Date must be in the past. ({value.Date})")
+                .Must(date => date > DateTimeOffset.Parse("01.01.2001"))
+                    .WithMessage(date => $"Date must be after 01.01.2001. ({date.Date})");
 
             RuleFor(x => x.ExecutionTime)
                 .NotEmpty()

@@ -22,6 +22,7 @@ builder.Services.AddDbContext<TimescaleDbContext>(options =>
 
 // Add application services
 builder.Services.AddScoped<ICsvProcessingService, CsvProcessingService>();
+builder.Services.AddScoped<IResultService, ResultService>();
 
 // Add controllers
 builder.Services.AddControllers();

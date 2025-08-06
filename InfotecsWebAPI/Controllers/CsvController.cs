@@ -10,12 +10,15 @@ namespace InfotecsWebAPI.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class CsvController(ICsvProcessingService csvProcessingService, ILogger<CsvController> logger, ActivitySource activitySource)
+public class CsvController(
+    ICsvProcessingService csvProcessingService,
+    ILogger<CsvController> logger,
+    ActivitySource activitySource)
     : ControllerBase
 {
     private const long MaxFileSizeBytes = 50 * 1024 * 1024; // 50 MB
     private static readonly string[] AllowedExtensions = [".csv"];
-    
+
     [EndpointSummary("Upload and process a CSV file containing timescale data.")]
     [HttpPost("upload")]
     [RequestSizeLimit(MaxFileSizeBytes)]
@@ -35,22 +38,25 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
             activity?.SetStatus(ActivityStatusCode.Error, $"Invalid file upload attempt");
             return badRequest!;
         }
-        
+
         try
         {
             await csvProcessingService.ProcessCsvFileAsync(file!.OpenReadStream(), file.FileName);
-            
-            return Ok(new { 
-                message = "CSV file processed successfully", 
+
+            return Ok(new
+            {
+                message = "CSV file processed successfully",
                 fileName = file.FileName,
                 timestamp = DateTime.UtcNow
             });
         }
-        catch (Exception ex) when (ex is InvalidOperationException or FormatException or ArgumentException or TypeConverterException)
+        catch (Exception ex) when (ex is InvalidOperationException or FormatException or ArgumentException
+                                       or TypeConverterException)
         {
             logger.LogWarning(ex, "Validation error processing CSV file: {FileName}", file?.FileName);
-            return BadRequest(new { 
-                error = "Validation error", 
+            return BadRequest(new
+            {
+                error = "Validation error",
                 message = ex.Message,
                 fileName = file?.FileName
             });
@@ -58,8 +64,9 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error processing CSV file: {FileName}", file?.FileName);
-            return StatusCode(500, new { 
-                error = "Internal server error", 
+            return StatusCode(500, new
+            {
+                error = "Internal server error",
                 message = "An unexpected error occurred while processing the file",
                 fileName = file?.FileName
             });
@@ -73,17 +80,20 @@ public class CsvController(ICsvProcessingService csvProcessingService, ILogger<C
             badRequest = BadRequest(new { error = "No file uploaded or file is empty." });
             return true;
         }
+
         if (file.Length > MaxFileSizeBytes)
         {
             badRequest = BadRequest(new { error = "File size exceeds the maximum limit of 50 MB." });
             return true;
         }
+
         if (!AllowedExtensions.Contains(Path.GetExtension(file.FileName).ToLowerInvariant())
             || (file.ContentType != "text/csv" && file.ContentType != "application/csv"))
         {
             badRequest = BadRequest(new { error = "Invalid file type. Only CSV files are allowed." });
             return true;
         }
+
         badRequest = null;
         return false;
     }
