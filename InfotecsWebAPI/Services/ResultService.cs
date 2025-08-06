@@ -1,7 +1,8 @@
 using InfotecsWebAPI.Data;
 using InfotecsWebAPI.Models;
-using InfotecsWebAPI.Services;
 using Microsoft.EntityFrameworkCore;
+
+namespace InfotecsWebAPI.Services;
 
 internal class ResultService(TimescaleDbContext dbContext) : IResultService
 {
@@ -27,28 +28,5 @@ internal class ResultService(TimescaleDbContext dbContext) : IResultService
             query = query.Where(r => r.AvgExecutionTime <= maxAvgExecutionTime.Value);
 
         return await query.ToListAsync();
-    }
-
-    public Task<ResultEntity?> GetResultByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<ResultEntity>> GetResultsByFileNameAsync(string fileName)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<ResultEntity>> GetResultsByTimeRangeAsync(DateTime startTime, DateTime endTime)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> GetFilteredResultsCountAsync(string? fileName = null, DateTime? minStartTime = null,
-        DateTime? maxStartTime = null,
-        decimal? minAvgValue = null, decimal? maxAvgValue = null, decimal? minAvgExecutionTime = null,
-        decimal? maxAvgExecutionTime = null)
-    {
-        throw new NotImplementedException();
     }
 }
