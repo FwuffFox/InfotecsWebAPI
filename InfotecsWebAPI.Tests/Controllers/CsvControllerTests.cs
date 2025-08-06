@@ -1,35 +1,40 @@
 using System.Diagnostics;
 using System.Text;
+using FluentAssertions;
+using InfotecsWebAPI.Controllers;
+using InfotecsWebAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using FluentAssertions;
-using InfotecsWebAPI.Controllers;
-using InfotecsWebAPI.Services;
 
 namespace InfotecsWebAPI.Tests.Controllers;
 
 /// <summary>
-/// Unit tests for CsvController functionality.
+///     Unit tests for CsvController functionality.
 /// </summary>
 public class CsvControllerTests : IDisposable
 {
-    private readonly Mock<ICsvProcessingService> _csvProcessingServiceMock;
     private readonly ActivitySource _activitySource;
     private readonly CsvController _controller;
+    private readonly Mock<ICsvProcessingService> _csvProcessingServiceMock;
 
     public CsvControllerTests()
     {
         _csvProcessingServiceMock = new Mock<ICsvProcessingService>();
         var loggerMock = new Mock<ILogger<CsvController>>();
         _activitySource = new ActivitySource("TestActivitySource");
-        
+
         _controller = new CsvController(
             _csvProcessingServiceMock.Object,
             loggerMock.Object,
             _activitySource
         );
+    }
+
+    public void Dispose()
+    {
+        _activitySource?.Dispose();
     }
 
     [Fact]
@@ -50,7 +55,7 @@ public class CsvControllerTests : IDisposable
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
         okResult!.Value.Should().NotBeNull();
-        
+
         _csvProcessingServiceMock.Verify(
             x => x.ProcessCsvFileAsync(It.IsAny<Stream>(), "test.csv"),
             Times.Once
@@ -159,18 +164,13 @@ public class CsvControllerTests : IDisposable
     {
         var bytes = Encoding.UTF8.GetBytes(content);
         var stream = new MemoryStream(bytes);
-        
+
         var mockFile = new Mock<IFormFile>();
         mockFile.Setup(f => f.FileName).Returns(fileName);
         mockFile.Setup(f => f.Length).Returns(bytes.Length);
         mockFile.Setup(f => f.ContentType).Returns(contentType);
         mockFile.Setup(f => f.OpenReadStream()).Returns(stream);
-        
-        return mockFile.Object;
-    }
 
-    public void Dispose()
-    {
-        _activitySource?.Dispose();
+        return mockFile.Object;
     }
 }

@@ -1,11 +1,11 @@
-using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using InfotecsWebAPI.Data;
 using InfotecsWebAPI.Services;
+using Microsoft.EntityFrameworkCore;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
-using System.Diagnostics;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,10 +29,7 @@ builder.Services.AddScoped<IValueService, ValueService>();
 builder.Services.AddControllers();
 
 // Configure routing
-builder.Services.AddRouting(options =>
-{
-    options.LowercaseUrls = true; 
-});
+builder.Services.AddRouting(options => { options.LowercaseUrls = true; });
 
 // Configure OpenTelemetry
 builder.Logging.AddOpenTelemetry(options =>
@@ -42,9 +39,9 @@ builder.Logging.AddOpenTelemetry(options =>
 });
 
 var otel = builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => 
+    .ConfigureResource(resource =>
         resource.AddService(
-            serviceName: "InfotecsWebAPI",
+            "InfotecsWebAPI",
             serviceVersion: "1.0.0"))
     .WithTracing(tracingBuilder =>
     {

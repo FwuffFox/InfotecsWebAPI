@@ -1,35 +1,41 @@
+using FluentAssertions;
 using InfotecsWebAPI.Data;
 using InfotecsWebAPI.Models;
 using InfotecsWebAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using FluentAssertions;
 
 namespace InfotecsWebAPI.Tests.Services;
 
 /// <summary>
-/// Unit tests for ValueService functionality.
+///     Unit tests for ValueService functionality.
 /// </summary>
 public class ValueServiceTests : IDisposable
 {
     private readonly TimescaleDbContext _context;
-    private readonly IValueService _valueService;
     private readonly ServiceProvider _serviceProvider;
+    private readonly IValueService _valueService;
 
     public ValueServiceTests()
     {
         var services = new ServiceCollection();
-        
+
         services.AddDbContext<TimescaleDbContext>(options =>
-            options.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()));
-        
+            options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+
         services.AddScoped<IValueService, ValueService>();
-        
+
         _serviceProvider = services.BuildServiceProvider();
         _context = _serviceProvider.GetRequiredService<TimescaleDbContext>();
         _valueService = _serviceProvider.GetRequiredService<IValueService>();
 
         SeedTestData();
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
+        _serviceProvider.Dispose();
     }
 
     private void SeedTestData()
@@ -77,7 +83,7 @@ public class ValueServiceTests : IDisposable
                 ExecutionTime = 1.9m,
                 Value = 30.3m
             },
-            
+
             // File 2: test2.csv - 3 entries
             new()
             {
@@ -103,7 +109,7 @@ public class ValueServiceTests : IDisposable
                 ExecutionTime = 3.2m,
                 Value = 55.8m
             },
-            
+
             // File 3: data.csv - 2 entries
             new()
             {
@@ -142,7 +148,7 @@ public class ValueServiceTests : IDisposable
     public async Task GetLastValuesAsync_WithDescendingOrder_ShouldReturnLatestFirst()
     {
         // Act
-        var results = (await _valueService.GetLastValuesAsync("test1.csv", descending: true)).ToList();
+        var results = (await _valueService.GetLastValuesAsync("test1.csv", true)).ToList();
 
         // Assert
         results.Should().HaveCount(5);
@@ -155,7 +161,7 @@ public class ValueServiceTests : IDisposable
     public async Task GetLastValuesAsync_WithAscendingOrder_ShouldReturnOldestFirst()
     {
         // Act
-        var results = (await _valueService.GetLastValuesAsync("test1.csv", descending: false)).ToList();
+        var results = (await _valueService.GetLastValuesAsync("test1.csv", false)).ToList();
 
         // Assert
         results.Should().HaveCount(5);
@@ -216,7 +222,7 @@ public class ValueServiceTests : IDisposable
     public async Task GetLastValuesAsync_WithAscendingAndLimit_ShouldReturnOldestEntries()
     {
         // Act
-        var results = (await _valueService.GetLastValuesAsync("test1.csv", descending: false, limit: 2)).ToList();
+        var results = (await _valueService.GetLastValuesAsync("test1.csv", false, 2)).ToList();
 
         // Assert
         results.Should().HaveCount(2);
@@ -298,7 +304,7 @@ public class ValueServiceTests : IDisposable
         // Assert
         results.Should().HaveCount(1);
         var result = results.First();
-        
+
         result.Id.Should().BePositive();
         result.FileName.Should().Be("test1.csv");
         result.Date.Should().NotBe(default);
@@ -311,22 +317,14 @@ public class ValueServiceTests : IDisposable
     [InlineData("test2.csv", 3)]
     [InlineData("data.csv", 2)]
     [InlineData("missing.csv", 0)]
-    public async Task GetLastValuesAsync_WithVariousFileNames_ShouldReturnCorrectCounts(string fileName, int expectedCount)
+    public async Task GetLastValuesAsync_WithVariousFileNames_ShouldReturnCorrectCounts(string fileName,
+        int expectedCount)
     {
         // Act
         var results = (await _valueService.GetLastValuesAsync(fileName)).ToList();
 
         // Assert
         results.Should().HaveCount(expectedCount);
-        if (expectedCount > 0)
-        {
-            results.Should().OnlyContain(v => v.FileName == fileName);
-        }
-    }
-
-    public void Dispose()
-    {
-        _context.Dispose();
-        _serviceProvider.Dispose();
+        if (expectedCount > 0) results.Should().OnlyContain(v => v.FileName == fileName);
     }
 }

@@ -1,14 +1,14 @@
+using FluentAssertions;
 using InfotecsWebAPI.Data;
 using InfotecsWebAPI.Models;
 using InfotecsWebAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using FluentAssertions;
 
 namespace InfotecsWebAPI.Tests.Services;
 
 /// <summary>
-/// Unit tests for ResultService functionality.
+///     Unit tests for ResultService functionality.
 /// </summary>
 public class ResultServiceTests : IDisposable
 {
@@ -19,17 +19,23 @@ public class ResultServiceTests : IDisposable
     public ResultServiceTests()
     {
         var services = new ServiceCollection();
-        
+
         services.AddDbContext<TimescaleDbContext>(options =>
-            options.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()));
-        
+            options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+
         services.AddScoped<IResultService, ResultService>();
-        
+
         _serviceProvider = services.BuildServiceProvider();
         _context = _serviceProvider.GetRequiredService<TimescaleDbContext>();
         _resultService = _serviceProvider.GetRequiredService<IResultService>();
 
         SeedTestData();
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
+        _serviceProvider.Dispose();
     }
 
     private void SeedTestData()
@@ -100,7 +106,7 @@ public class ResultServiceTests : IDisposable
     public async Task GetFilteredResultsAsync_WithExactFileNameFilter_ShouldReturnExactMatch()
     {
         // Act
-        var results = (await _resultService.GetFilteredResultsAsync(fileName: "data.csv")).ToList();
+        var results = (await _resultService.GetFilteredResultsAsync("data.csv")).ToList();
 
         // Assert
         results.Should().HaveCount(1);
@@ -144,7 +150,7 @@ public class ResultServiceTests : IDisposable
 
         // Act
         var results = (await _resultService.GetFilteredResultsAsync(
-            minStartTime: minStartTime, 
+            minStartTime: minStartTime,
             maxStartTime: maxStartTime)).ToList();
 
         // Assert
@@ -181,7 +187,7 @@ public class ResultServiceTests : IDisposable
     {
         // Act
         var results = (await _resultService.GetFilteredResultsAsync(
-            minAvgValue: 20.0m, 
+            minAvgValue: 20.0m,
             maxAvgValue: 40.0m)).ToList();
 
         // Assert
@@ -219,7 +225,7 @@ public class ResultServiceTests : IDisposable
     {
         // Act
         var results = (await _resultService.GetFilteredResultsAsync(
-            minAvgExecutionTime: 1.5m, 
+            minAvgExecutionTime: 1.5m,
             maxAvgExecutionTime: 2.5m)).ToList();
 
         // Assert
@@ -232,7 +238,7 @@ public class ResultServiceTests : IDisposable
     {
         // Act
         var results = (await _resultService.GetFilteredResultsAsync(
-            fileName: "test2.csv",
+            "test2.csv",
             minAvgValue: 30.0m,
             maxAvgExecutionTime: 3.0m)).ToList();
 
@@ -249,7 +255,7 @@ public class ResultServiceTests : IDisposable
     {
         // Act
         var results = (await _resultService.GetFilteredResultsAsync(
-            fileName: "nonexistent",
+            "nonexistent",
             minAvgValue: 1000.0m)).ToList();
 
         // Assert
@@ -260,7 +266,7 @@ public class ResultServiceTests : IDisposable
     public async Task GetFilteredResultsAsync_WithNullFileName_ShouldIgnoreFileNameFilter()
     {
         // Act
-        var results = (await _resultService.GetFilteredResultsAsync(fileName: null)).ToList();
+        var results = (await _resultService.GetFilteredResultsAsync(null)).ToList();
 
         // Assert
         results.Should().HaveCount(4);
@@ -270,7 +276,7 @@ public class ResultServiceTests : IDisposable
     public async Task GetFilteredResultsAsync_WithEmptyFileName_ShouldIgnoreFileNameFilter()
     {
         // Act
-        var results = (await _resultService.GetFilteredResultsAsync(fileName: "")).ToList();
+        var results = (await _resultService.GetFilteredResultsAsync("")).ToList();
 
         // Assert
         results.Should().HaveCount(4);
@@ -280,15 +286,9 @@ public class ResultServiceTests : IDisposable
     public async Task GetFilteredResultsAsync_WithWhitespaceFileName_ShouldIgnoreFileNameFilter()
     {
         // Act
-        var results = (await _resultService.GetFilteredResultsAsync(fileName: "   ")).ToList();
+        var results = (await _resultService.GetFilteredResultsAsync("   ")).ToList();
 
         // Assert
         results.Should().HaveCount(4);
-    }
-
-    public void Dispose()
-    {
-        _context.Dispose();
-        _serviceProvider.Dispose();
     }
 }

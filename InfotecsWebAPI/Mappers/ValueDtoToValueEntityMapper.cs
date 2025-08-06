@@ -4,12 +4,12 @@ using InfotecsWebAPI.Models;
 namespace InfotecsWebAPI.Mappers;
 
 /// <summary>
-/// Mapper for converting ValueDto to ValueEntity.
+///     Mapper for converting ValueDto to ValueEntity.
 /// </summary>
 public static class ValueDtoToValueEntityMapper
 {
     /// <summary>
-    /// Maps ValueDto to ValueEntity.
+    ///     Maps ValueDto to ValueEntity.
     /// </summary>
     /// <param name="dto">The DTO to map</param>
     /// <param name="fileName">The name of the CSV file</param>
@@ -18,7 +18,7 @@ public static class ValueDtoToValueEntityMapper
     public static ValueEntity ToEntity(ValueDto dto, string fileName)
     {
         ArgumentNullException.ThrowIfNull(dto);
-        
+
         if (string.IsNullOrWhiteSpace(fileName))
             throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
 
@@ -40,7 +40,7 @@ public static class ValueDtoToValueEntityMapper
     }
 
     /// <summary>
-    /// Maps multiple ValueDto objects to ValueEntity objects.
+    ///     Maps multiple ValueDto objects to ValueEntity objects.
     /// </summary>
     /// <param name="dtos">Collection of DTOs to map</param>
     /// <param name="fileName">The name of the CSV file</param>

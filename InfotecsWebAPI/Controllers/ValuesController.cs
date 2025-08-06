@@ -8,7 +8,8 @@ namespace InfotecsWebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ValuesController(ActivitySource activitySource, IValueService valueService, ILogger logger) : ControllerBase
+public class ValuesController(ActivitySource activitySource, IValueService valueService, ILogger logger)
+    : ControllerBase
 {
     [HttpGet("values")]
     [EndpointSummary("Gets last amount of values from the Results table based on a provided file name.")]
@@ -28,7 +29,7 @@ public class ValuesController(ActivitySource activitySource, IValueService value
             using var activity = activitySource.StartActivity();
 
             var results = await valueService.GetLastValuesAsync(fileName, sortDescending, count);
-            
+
             return Ok(results);
         }
         catch (Exception ex)

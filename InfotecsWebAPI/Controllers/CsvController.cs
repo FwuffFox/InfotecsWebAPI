@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using CsvHelper.TypeConversion;
-using Microsoft.AspNetCore.Mvc;
 using InfotecsWebAPI.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InfotecsWebAPI.Controllers;
 
 /// <summary>
-/// Controller for CSV file processing operations.
+///     Controller for CSV file processing operations.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -24,18 +24,16 @@ public class CsvController(
     [RequestSizeLimit(MaxFileSizeBytes)]
     [Consumes("multipart/form-data")]
     [Produces("application/json")]
-    [
-        ProducesResponseType(StatusCodes.Status200OK),
-        ProducesResponseType(StatusCodes.Status400BadRequest),
-        ProducesResponseType(StatusCodes.Status500InternalServerError)
-    ]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UploadCsv(IFormFile? file)
     {
         using var activity = activitySource.StartActivity();
 
         if (IsFileInvalid(file, out var badRequest))
         {
-            activity?.SetStatus(ActivityStatusCode.Error, $"Invalid file upload attempt");
+            activity?.SetStatus(ActivityStatusCode.Error, "Invalid file upload attempt");
             return badRequest!;
         }
 

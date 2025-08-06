@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 namespace InfotecsWebAPI.Services;
 
 /// <summary>
-/// Service for processing CSV files with timescale data.
+///     Service for processing CSV files with timescale data.
 /// </summary>
 internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessingService
 {
     private const int MaxLines = 10_000;
 
     /// <summary>
-    /// Processes CSV file and saves data to database with validation.
+    ///     Processes CSV file and saves data to database with validation.
     /// </summary>
     public async Task ProcessCsvFileAsync(Stream csvContent, string fileName)
     {
@@ -49,14 +49,14 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
     }
 
     /// <summary>
-    /// Parses CSV content
+    ///     Parses CSV content
     /// </summary>
     private List<ValueDto> ParseAndValidateCsv(Stream csvContent, string fileName)
     {
         using var reader = new StreamReader(csvContent);
         using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            Delimiter = ";", // Assuming semicolon as delimiter
+            Delimiter = ";" // Assuming semicolon as delimiter
         });
         csv.Context.RegisterClassMap<CsvToValueDtoMapper>();
 
@@ -64,7 +64,7 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
     }
 
     /// <summary>
-    /// Removes existing data for the specified file.
+    ///     Removes existing data for the specified file.
     /// </summary>
     private async Task RemoveExistingDataAsync(string fileName)
     {
@@ -82,7 +82,7 @@ internal class CsvProcessingService(TimescaleDbContext dbContext) : ICsvProcessi
     }
 
     /// <summary>
-    /// Calculates aggregated results from the values.
+    ///     Calculates aggregated results from the values.
     /// </summary>
     private static ResultEntity CalculateResults(List<ValueEntity> values, string fileName)
     {

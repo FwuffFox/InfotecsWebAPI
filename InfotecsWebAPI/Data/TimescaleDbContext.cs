@@ -1,10 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using InfotecsWebAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InfotecsWebAPI.Data;
 
 /// <summary>
-/// Database context for TimescaleDB operations.
+///     Database context for TimescaleDB operations.
 /// </summary>
 public class TimescaleDbContext : DbContext
 {

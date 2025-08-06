@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace InfotecsWebAPI.Models;
 
 /// <summary>
-/// Entity representing a single value entry from CSV file.
+///     Entity representing a single value entry from CSV file.
 /// </summary>
 [Table("Values")]
 [Index(nameof(FileName))]
@@ -13,15 +13,11 @@ namespace InfotecsWebAPI.Models;
 [Index(nameof(FileName), nameof(Date))]
 public class ValueEntity
 {
-    [Key]
-    public int Id { get; set; }
+    [Key] public int Id { get; set; }
 
-    [Required]
-    [MaxLength(255)]
-    public string FileName { get; set; } = string.Empty;
+    [Required] [MaxLength(255)] public string FileName { get; set; } = string.Empty;
 
-    [Required]
-    public DateTimeOffset Date { get; set; }
+    [Required] public DateTimeOffset Date { get; set; }
 
     [Required]
     [Column(TypeName = "decimal(18,6)")]
